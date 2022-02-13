@@ -9,3 +9,8 @@ After some analysis, multiple flaws were found in P2DPI algorithm meant for priv
 ## Paper
 
 The paper can be found in the file "Cryptographic analysis of P2DPI.pdf". Notice that copyright applies.
+
+## Author's notes
+
+The quality of this article was improved by the following people, I would personally like to thank:
+- deebato
