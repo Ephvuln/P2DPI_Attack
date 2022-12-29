@@ -6,6 +6,7 @@ import base64 as b64
 from pwn import *
 import os
 import ecdsa
+from ..lib.p2dpi import *
 
 
 sign_priv= None
@@ -15,39 +16,6 @@ sig=ecdsa.SigningKey.from_pem(sign_priv)
 
 
 printable=b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r'
-
-def int_to_bytes(x: int) -> bytes:
-	return x.to_bytes()
-    
-def bytes_to_int(xbytes: bytes) -> int:
-    return int.from_bytes(xbytes, 'big')
-
-def int_arr_to_bytes(m):
-	return b''.join([x.to_bytes(1,'big') for x in m])
-
-# https://neuromancer.sk/std/nist/P-256
-n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
-
-def H1(msg):
-	hasher = blake3()
-	hasher.update(b'Salty')
-	hasher.update(msg)
-	return hasher.digest()
-
-
-def H2(c, msg):
-	hasher = blake3()
-	hasher.update(int.to_bytes(c,32,'big'))
-	hasher.update(msg)
-	return hasher.digest()
-
-def tokenize(msg):
-	return [msg[i:i+8] for i in range(len(msg)-8)]
-
-
-def get_ecc_point():
-	p = conn.recvline().split(b' ')
-	return ECC.EccPoint(int(p[0],16),int(p[1],16))
 
 def get_inter_rule(R):
 	conn.recvline()

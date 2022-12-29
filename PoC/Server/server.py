@@ -1,10 +1,10 @@
 from Crypto.PublicKey import ECC
 from Crypto.Random import get_random_bytes
 from Crypto.Random.random import randint
-from blake3 import blake3
 import base64 as b64
 import traffic
 import ecdsa
+from ..lib.p2dpi import *
 
 secure_message = traffic.get_msg()
 
@@ -13,43 +13,9 @@ with open('key.pub','rb') as f:
 	sign_pub=f.read()
 ver=ecdsa.VerifyingKey.from_pem(sign_pub)
 
-
-def int_to_bytes(x: int) -> bytes:
-	return x.to_bytes()
-    
-def bytes_to_int(xbytes: bytes) -> int:
-    return int.from_bytes(xbytes, 'big')
-
-
-def H1(msg):
-	hasher = blake3()
-	hasher.update(b'Salty')
-	hasher.update(msg)
-	return hasher.digest()
-
-
-def H2(c, msg):
-	hasher = blake3()
-	hasher.update(int.to_bytes(c,32,'big'))
-	hasher.update(msg)
-	return hasher.digest()
-
-def tokenize(msg):
-	return [msg[i:i+8] for i in range(len(msg)-8)]
-
-class ECC_G():
-	def __init__(self):
-		pass
-
-	def generate(self):
-		self.g = ECC.generate(curve='p256').pointQ
-		self.h = ECC.generate(curve='p256').pointQ
-
-
-	def get_public(self):
-		return (self.g,self.h)
-
-
+def get_ecc_point():
+	p = input().split(b' ')
+	return ECC.EccPoint(int(p[0],16),int(p[1],16))
 
 class SR_Oracle():
 	def __init__(self,g,h):

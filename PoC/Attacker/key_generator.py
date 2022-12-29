@@ -1,6 +1,5 @@
 import ecdsa
 
-# SECP256k1 is the Bitcoin elliptic curve
 sk = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1) 
 vk = sk.get_verifying_key()
 with open('key.pub','wb') as f:
@@ -8,5 +7,6 @@ with open('key.pub','wb') as f:
 
 with open('key.priv','wb') as f:
 	f.write(sk.to_pem())
-#sig = sk.sign(b"message")
-#vk.verify(sig, b"message") # True
+
+# sig = sk.sign(b"message")
+# vk.verify(sig, b"message") # True
