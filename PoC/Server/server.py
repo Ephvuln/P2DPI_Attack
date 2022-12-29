@@ -4,7 +4,7 @@ from Crypto.Random.random import randint
 import base64 as b64
 import traffic
 import ecdsa
-from ..lib.p2dpi import *
+from p2dpilib import *
 
 secure_message = traffic.get_msg()
 
@@ -14,7 +14,7 @@ with open('key.pub','rb') as f:
 ver=ecdsa.VerifyingKey.from_pem(sign_pub)
 
 def get_ecc_point():
-	p = input().split(b' ')
+	p = input().split(' ')
 	return ECC.EccPoint(int(p[0],16),int(p[1],16))
 
 class SR_Oracle():
@@ -38,34 +38,21 @@ class SR_Oracle():
 		return (g*bytes_to_int(H1(msg))+h)*self.k_sr
 
 
-
 if __name__ == '__main__':
-	n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+	g = get_ecc_point()
+	h = get_ecc_point()
 
-	RG = ECC_G()
-	RG.generate()
-	g,h = RG.get_public()
 	SR = SR_Oracle(g,h)
 
-	print("Hello MiddleBox. Here is my g and h:")
-	print(hex(g.x)[2:],hex(g.y)[2:])
-	print(hex(h.x)[2:],hex(h.y)[2:])
-
-
-	n = 157
-	n_traf = True
 	try:
 		while True:
-			print("Menu:")
-			print("1. Obfuscate rule (Will accept exactly "+str(n)+" more)")
+			print("Query:")
+			print("1. Obfuscate rule ")
 			print("2. Get traffic")
 			i = input().strip()
 			if i == '1':
-				n-=1
-				if n < 1:
-					exit()
 				R = input().strip()
-				Rinit = R.encode('utf-8') # 2lazy2compress
+				Rinit = R.encode('utf-8')
 				R = R.split(' ')
 				R = ECC.EccPoint(int(R[0],16),int(R[1],16))
 				sig = b64.b64decode(input().strip())
@@ -80,11 +67,9 @@ if __name__ == '__main__':
 				s1 = SR.compute_intermediate_rule(R)
 				print(hex(s1.x)[2:],hex(s1.y)[2:])
 			elif i == '2':
-				if n_traf:
-					n_traf = False 
-					c,Ti=SR.compute_obfuscated_tokens(tokenize(secure_message))
-					print(str(c)+'|',end='')
-					print(b64.b64encode(b''.join(Ti)).decode('utf-8'))
+				c,Ti=SR.compute_obfuscated_tokens(tokenize(secure_message))
+				print(str(c)+'|',end='')
+				print(b64.b64encode(b''.join(Ti)).decode('utf-8'))
 			else:
 				exit()
 	except:

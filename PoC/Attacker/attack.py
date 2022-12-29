@@ -6,7 +6,7 @@ import base64 as b64
 from pwn import *
 import os
 import ecdsa
-from ..lib.p2dpi import *
+from p2dpilib import *
 
 
 sign_priv= None
@@ -14,13 +14,16 @@ with open('key.priv','rb') as f:
 	sign_priv=f.read()
 sig=ecdsa.SigningKey.from_pem(sign_priv)
 
+def get_ecc_point():
+	p = conn.recvline().split(b' ')
+
+	print("P",p)
+	return ECC.EccPoint(int(p[0],16),int(p[1],16))
 
 printable=b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r'
 
 def get_inter_rule(R):
-	conn.recvline()
-	conn.recvline()
-	conn.recvline()
+	conn.recv()
 
 	msg = (hex(R.x)[2:]+' '+hex(R.y)[2:]).encode('utf-8')
 	signiture = b64.b64encode(sig.sign(msg))
@@ -30,12 +33,10 @@ def get_inter_rule(R):
 	return get_ecc_point()
 
 def get_traffic():
-	conn.recvline()
-	conn.recvline()
-	conn.recvline()
+	conn.recv()
 
 	conn.sendline(b'2')
-	traffic = conn.recvline().split(b'|')
+	traffic = conn.recvline().strip().split(b'|')
 	c = int(traffic[0])
 	traffic = b64.b64decode(traffic[1])
 	traffic = [traffic[i:i+32] for i in range(0,len(traffic),32)]
@@ -53,22 +54,20 @@ def print_plain(p):
 server = '127.0.0.1'
 port = 5555
 conn = remote(server,port)
-x = conn.recvline() # welcome line
-g=get_ecc_point()
-print("[*] Got g:",g.x,g.y)
-h=get_ecc_point()
-print("[*] Got h:",h.x,h.y)
+G = ECC_G()
+G.generate()
+g,h = G.get_public()
 
+conn.sendline(hex(g.x)[2:]+" "+hex(g.y)[2:])
+conn.sendline(hex(h.x)[2:]+" "+hex(h.y)[2:])
 
 k_mb = bytes_to_int(get_random_bytes(32))
-
 
 Rrg = g*k_mb
 Rrh = h*k_mb
 
 Irg = get_inter_rule(Rrg)
 Irh = get_inter_rule(Rrh)
-
 
 k_mb_inv = pow(k_mb,n-2,n)
 
@@ -83,9 +82,7 @@ c,Tokens = get_traffic()
 print('[*] Got counter',c)
 print('[*] Got',len(Tokens),'traffic tokens')
 
-
 known_plaintext = b'Accept-Encoding:'[:8]
-
 
 plaintext = [0]*(len(Tokens)+7)
 
