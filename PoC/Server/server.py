@@ -55,7 +55,7 @@ if __name__ == '__main__':
 				Rinit = R.encode('utf-8')
 				R = R.split(' ')
 				R = ECC.EccPoint(int(R[0],16),int(R[1],16))
-				sig = b64.b64decode(input().strip())
+				sig = bytes.fromhex(input().strip())
 
 				if R == g or R == h:
 					print("Rule entropy too small.")
@@ -68,8 +68,8 @@ if __name__ == '__main__':
 				print(hex(s1.x)[2:],hex(s1.y)[2:])
 			elif i == '2':
 				c,Ti=SR.compute_obfuscated_tokens(tokenize(secure_message))
-				print(str(c)+'|',end='')
-				print(b64.b64encode(b''.join(Ti)).decode('utf-8'))
+				print(str(c)+' ',end='')
+				print(b''.join(Ti).hex())
 			else:
 				exit()
 	except:

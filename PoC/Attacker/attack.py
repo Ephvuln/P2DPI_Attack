@@ -16,8 +16,6 @@ sig=ecdsa.SigningKey.from_pem(sign_priv)
 
 def get_ecc_point():
 	p = conn.recvline().split(b' ')
-
-	print("P",p)
 	return ECC.EccPoint(int(p[0],16),int(p[1],16))
 
 printable=b'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r'
@@ -26,7 +24,8 @@ def get_inter_rule(R):
 	conn.recv()
 
 	msg = (hex(R.x)[2:]+' '+hex(R.y)[2:]).encode('utf-8')
-	signiture = b64.b64encode(sig.sign(msg))
+
+	signiture = sig.sign(msg).hex()
 	conn.sendline(b'1')
 	conn.sendline(msg)
 	conn.sendline(signiture)
@@ -36,9 +35,9 @@ def get_traffic():
 	conn.recv()
 
 	conn.sendline(b'2')
-	traffic = conn.recvline().strip().split(b'|')
+	traffic = conn.recvline().strip().split(b' ')
 	c = int(traffic[0])
-	traffic = b64.b64decode(traffic[1])
+	traffic = bytes.fromhex(traffic[1].decode('utf-8'))
 	traffic = [traffic[i:i+32] for i in range(0,len(traffic),32)]
 	return c,traffic
 
