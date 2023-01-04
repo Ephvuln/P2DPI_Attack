@@ -106,32 +106,21 @@ time.sleep(3)
 
 
 for i in range(found_index+1,len(Tokens)):
-	found = False
 	for x in printable:
 		if forge_encryption(c+i,int_arr_to_bytes(plaintext[i:i+7]+[x])) == Tokens[i]:
 			plaintext[i+7] = x
-			found = True
 			break
-	if not found:
-		print("Error at byte attack.")
-		exit()
 
 	os.system('clear')
-
 	print_plain(plaintext) 
 
 
 for i in range(found_index-1,-1,-1):
-	found = False
 	for x in printable:
 		if forge_encryption(c+i,int_arr_to_bytes([x]+plaintext[i+1:i+8])) == Tokens[i]:
 			plaintext[i] = x
-			found = True
 			break
-	if not found:
-		print("Error at reversed-byte attack.")
-		exit()
-		
+
 	os.system('clear')
 	print_plain(plaintext) 
 
