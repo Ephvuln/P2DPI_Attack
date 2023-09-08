@@ -8,7 +8,7 @@ After some analysis, multiple flaws were found in P2DPI algorithm meant for priv
 
 ## Paper
 
-The paper "Cryptographic analysis of P2DPI" can be found on ROCYS. Notice that copyright applies.
+The paper "Cryptographic analysis of P2DPI" can be found on ROCYS. Notice that copyright applies. DOI: http://doi.org/10.54851/v4i1y202201
 
 ## Author's notes
 
